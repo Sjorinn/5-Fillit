@@ -6,27 +6,27 @@
 /*   By: pchambon <pchambon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/18 15:53:11 by jpoulvel          #+#    #+#             */
-/*   Updated: 2019/01/22 15:13:34 by pchambon         ###   ########.fr       */
+/*   Updated: 2019/03/20 09:05:43 by jpoulvel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fillit.h"
+#include "./fillit.h"
 
-int				check_connex(char *tetri)
+int				check_connex(char tetri[21])
 {
 	int			i;
 	int			count;
 
 	i = 0;
 	count = 0;
-	while (tetri[i])
+	while (i < 21)
 	{
 		if (tetri[i] == '#')
 		{
-			tetri[i + 1] == '#' ? count++ : count + 0;
-			tetri[i - 1] == '#' ? count++ : count + 0;
-			tetri[i + 5] == '#' ? count++ : count + 0;
-			tetri[i - 5] == '#' ? count++ : count + 0;
+			((i + 1 < 21) && (tetri[i + 1] == '#')) ? count++ : count + 0;
+			((i - 1 >= 0) && (tetri[i - 1] == '#')) ? count++ : count + 0;
+			((i + 5 < 21) && (tetri[i + 5] == '#')) ? count++ : count + 0;
+			((i - 5 >= 0) && (tetri[i - 5] == '#')) ? count++ : count + 0;
 		}
 		i++;
 	}
@@ -34,6 +34,7 @@ int				check_connex(char *tetri)
 		return (0);
 	return (1);
 }
+
 int				check_file(char *str)
 {
 	int			p;
@@ -47,7 +48,7 @@ int				check_file(char *str)
 				str[19] == '\n'))
 		return (0);
 	while (str[p + h + r] == '.' || str[p + h + r] == '#' ||
-			(str[p + h + r] == '\n'  && ((((p + h + r) - 4) % 5) == 0)))
+			(str[p + h + r] == '\n' && ((((p + h + r) - 4) % 5) == 0)))
 	{
 		if (str[p + h + r] == '.')
 			p++;
@@ -56,27 +57,36 @@ int				check_file(char *str)
 		if (str[p + h + r] == '\n' && ((((p + h + r) - 4) % 5) == 0))
 			r++;
 	}
-	if (!(h == 4 && r == 4 && p == 12 ))
+	if (!(h == 4 && r == 4 && p == 12))
 		return (0);
 	return (1);
 }
 
-char			**check_tetri(char *buf, int i)
+char			**check(char *buf, int i, int j)
 {
+	static int	nb = -1;
 	static char	**tab = NULL;
 
 	if (tab == NULL)
 	{
-		if (!(tab = (char**)malloc(sizeof(char*) * i + 1)))
+		if (!(tab = (char**)malloc(sizeof(char*) * 27)))
 			return (NULL);
 	}
-	if (!(tab[i] = ft_strnew(21)))
-		return (NULL);
+	if (nb == -1)
+	{
+		while (++nb < 26)
+		{
+			if (!(tab[nb] = ft_strnew(21)))
+				return (NULL);
+		}
+		tab[nb] = NULL;
+	}
 	buf[BUFF_SIZE - 1] = '\0';
-	ft_strcpy(tab[i], buf);
-	if (!(check_file(tab[i])))
+	if (!(check_connex(buf)) || !(check_file(buf)) || i >= 26 || j < 20)
+	{
+		free_tab(tab);
 		return (NULL);
-	if (!(check_connex(tab[i])))
-			return (NULL);
+	}
+	ft_strcpy(tab[i], buf);
 	return (tab);
 }

@@ -3,38 +3,54 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jpoulvel <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: pchambon <pchambon@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/20 11:30:42 by jpoulvel          #+#    #+#              #
-#    Updated: 2019/01/18 17:17:08 by jpoulvel         ###   ########.fr        #
+#    Updated: 2019/03/19 16:51:44 by jpoulvel         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = fillit
 
-SRCS = ./srcs/main.c \
-	   ./srcs/check_tetri.c \
+SRCS = main.c \
+		check_tetri.c \
+		pos_tetri.c \
+		resolve_tetri.c \
+		extra_functions.c
 
 OBJ = $(SRCS:.c=.o)
 
-INCL = fillit.h
+LIB_DIR = libft
+
+INCL = fillit.h \
+		$(LIB_DIR)/libft.a
 
 FLAGS = -Wall -Wextra -Werror -I $(INCL)
 
+CC = clang
+
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	ar rc $(NAME) $(OBJ)
+$(NAME): FORCE LIB $(OBJ)
+	@gcc -o $(NAME) $(FLAGS) $(OBJ)
 
 %.o: %.c
-	gcc -c $(FLAGS) $< -o $@
+	@$(CC) -o $@ -c $< $(CFLAGS)
+	@echo $<
+
+LIB:
+	@$(MAKE) -C $(LIB_DIR)
 
 clean: 
-	rm -f $(OBJ)
+	@rm -f $(OBJ)
+	@$(MAKE) clean -C $(LIB_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
+	@$(MAKE) fclean -C $(LIB_DIR)
 
-re: fclean all
+re: fclean $(NAME)
 
-.PHONY: all clean fclean re
+FORCE:
+
+.PHONY: all clean fclean re FORCE
